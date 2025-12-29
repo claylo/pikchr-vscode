@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "private": true,
   "publisher": "claylo",
+  "repository": "https://github.com/claylo/pikchr-vscode",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -20,8 +21,13 @@
     "languages": [
       {
         "id": "pikchr",
-        "aliases": ["Pikchr", "pikchr"],
-        "extensions": [".pikchr"],
+        "aliases": [
+          "Pikchr",
+          "pikchr"
+        ],
+        "extensions": [
+          ".pikchr"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -59,6 +65,7 @@
     "@types/vscode": "^1.90.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.7.1",
     "mocha": "^11.7.5",
     "typescript": "^5.7.2"
   },
