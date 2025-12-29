@@ -5,9 +5,12 @@ import { registerPikchrPreview } from './preview/pikchrPreview';
 
 export function registerPikchrIntegrations(
   context: vscode.ExtensionContext
-): void {
+): any {
   const renderer = createPikchrRenderer();
 
   registerPikchrPreview(context, renderer);
-  registerMarkdownPikchr(context, renderer);
+  const markdownExtension = registerMarkdownPikchr(context, renderer);
+
+  // Return the markdown-it extension for VS Code to use
+  return markdownExtension;
 }

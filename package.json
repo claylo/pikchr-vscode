@@ -15,7 +15,21 @@
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
-  "contributes": {},
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "pikchr.preview",
+        "displayName": "Pikchr Preview",
+        "selector": [
+          {
+            "filenamePattern": "*.pikchr"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "markdown.markdownItPlugins": true
+  },
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",

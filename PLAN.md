@@ -13,16 +13,14 @@
 
 ## Phase 2: Implementation
 
-- [ ] Add or update extension logic to invoke `pikchr-cmd` for `.pikchr` files and embedded Markdown blocks.
-- [ ] Wire preview rendering to VS Code APIs with appropriate error handling.
+- [x] Add or update extension logic to invoke `pikchr-cmd` for `.pikchr` files and embedded Markdown blocks.
+- [x] Wire preview rendering to VS Code APIs with appropriate error handling.
+- [x] Add appropriate "contributes" section to `package.json` to register the extension's capabilities with VS Code.
+- [x] Add tests for extension logic and preview rendering.
+- [x] Add .github/workflows/ci.yml for continuous integration.
 
 ## Phase 3: Syntax Highlighting
 
 - [ ] Add TextMate grammar and language configuration for Pikchr.
 - [ ] Register the language and associate `.pikchr` files with it.
 - [ ] Use `../reference/pikchr/doc/grammar.md` as a reference for the grammar implementation.
-
-## Phase 4: Tests and Documentation
-
-- [ ] Add or adjust tests for new behavior.
-- [ ] Update README or related docs to reflect changes and usage.
