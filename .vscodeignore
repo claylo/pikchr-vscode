@@ -15,8 +15,10 @@ dist/test/**
 .vscode/**
 .claude/**
 node_modules/**
+!node_modules/pikchr-tmlanguage/**
 pnpm-lock.yaml
 .npmrc
+esbuild.js
 
 # Documentation and planning
 PLAN.md
@@ -47,8 +49,7 @@ examples/**
 
 # Keep only what's needed for the extension to run:
 # ✓ dist/
-# ✓ syntaxes/
-# ✓ language-configuration.json
+# ✓ node_modules/pikchr-tmlanguage/
 # ✓ package.json
 # ✓ README.md
 # ✓ LICENSE (if present)

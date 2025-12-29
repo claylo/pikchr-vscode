@@ -4,41 +4,39 @@
 /* Block comment
    showing multi-line comments */
 
-# Define a custom box style
-define $boxht = 0.5
-define $boxwid = 1.0
-
 # Start of the diagram
-box "Start" fill lightblue radius 0.1
+box "Start" fill lightblue radius 0.1 width 1.0 height 0.5
 arrow right 0.5
-box "Process" fill lightyellow
+box "Process" fill lightyellow width 1.0 height 0.5
 
 # Decision diamond
 arrow down 0.5 from last box.s
-circle "Decision?" radius 0.3 fill lightgreen
+oval "Decision?" fill lightgreen
 
-# Branching paths
+# Branching paths - Yes
 arrow right 0.5 "Yes" above
 box "Action A" fill pink
 arrow down 0.5
 circle "End" fill gray radius 0.2
 
-# Alternative path
-arrow down 0.5 from 3rd last circle.s "No" left
+# Alternative path - No
+arrow down 0.5 from last oval.s "No" ljust
 box "Action B" fill orange dashed
 arrow right until even with last circle then to last circle.w ->
 
 # Add some text annotations
-text "Diagram v1.0" at 1st box.n + (0, 0.3) color blue
+text "Sample Flowchart" big at 1st box.n + (0, 0.3)
 
-# Draw connecting lines
-line from 1st box.e to 2nd box.w thickness 2
-arc cw from 2nd box.s to 3rd circle.n
+# Reference previous objects
+box same as 1st box "Copy of Start" at (2, -2) fill cyan
 
-# Reference compass points
-dot at 1st box.ne
-dot at 2nd box.sw color red
+# Draw a simple shape sequence
+arrow down 0.3 from last box.s
+ellipse "Ellipse" width 1.2 height 0.6 fill yellow
+arrow down 0.3
+cylinder "Database" fill lightgray thickness 2px
 
-# Use variables and expressions
-$width = 1.5
-box width $width height $width/2 "Variable Size" at (2, -2)
+# Demonstrate compass points
+dot at 1st box.ne color red
+dot at 1st box.sw color blue
+dot at 1st box.center color green

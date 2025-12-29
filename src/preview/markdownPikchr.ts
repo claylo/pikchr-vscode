@@ -1,11 +1,16 @@
 import * as vscode from 'vscode';
 import type { PikchrRenderer } from '../pikchr/renderer';
-import { execFile } from 'child_process';
+
+// Global WASM renderer instance for markdown (synchronous usage)
+let wasmRenderer: any = null;
 
 export function registerMarkdownPikchr(
   context: vscode.ExtensionContext,
   renderer: PikchrRenderer
 ): { extendMarkdownIt: (md: any) => any } {
+  // Pre-initialize WASM renderer for markdown
+  initWasmForMarkdown();
+
   return {
     extendMarkdownIt(md: any) {
       const defaultFence = md.renderer.rules.fence;
@@ -13,25 +18,51 @@ export function registerMarkdownPikchr(
       md.renderer.rules.fence = (tokens: any[], idx: number, options: any, env: any, self: any) => {
         const token = tokens[idx];
         const info = token.info.trim();
+        const language = info.split(/\s+/)[0];
 
-        if (info === 'pikchr') {
+        if (language === 'pikchr') {
           const source = token.content;
 
           try {
-            // Synchronous rendering using execFileSync for markdown-it compatibility
-            const { execFileSync } = require('child_process');
-            const svgData = execFileSync('pikchr-cmd', ['--svg-only'], {
-              input: source,
-              encoding: 'utf-8',
-              maxBuffer: 10 * 1024 * 1024
-            });
+            const config = vscode.workspace.getConfiguration('pikchr');
+            const backend = config.get<string>('renderer', 'wasm');
+
+            let svgData: string;
+
+            if (backend === 'wasm' && wasmRenderer) {
+              // Use WASM renderer (synchronous)
+              svgData = wasmRenderer.render(source);
+            } else {
+              // Fall back to command-line renderer (synchronous)
+              const { execFileSync } = require('child_process');
+              const commandPath = config.get<string>('commandPath', '');
+
+              let command: string;
+              let args: string[];
+
+              if (backend === 'pikchr-cmd') {
+                command = commandPath || 'pikchr-cmd';
+                args = ['-b', '-C']; // bare mode, current color
+              } else {
+                command = commandPath || 'pikchr';
+                args = [];
+              }
+
+              svgData = execFileSync(command, args, {
+                input: source,
+                encoding: 'utf-8',
+                maxBuffer: 10 * 1024 * 1024
+              });
+            }
 
             return `<div class="pikchr-diagram">${svgData}</div>`;
           } catch (error: any) {
             let errorMessage = 'Unknown error';
 
             if (error.code === 'ENOENT') {
-              errorMessage = 'pikchr-cmd not found. Please install pikchr-cmd and ensure it is in your PATH.';
+              const config = vscode.workspace.getConfiguration('pikchr');
+              const backend = config.get<string>('renderer', 'wasm');
+              errorMessage = `${backend} not found. Please install it or switch to WASM renderer in settings.`;
             } else if (error.stderr) {
               errorMessage = error.stderr.toString();
             } else if (error.message) {
@@ -51,6 +82,17 @@ export function registerMarkdownPikchr(
       return md;
     }
   };
+}
+
+async function initWasmForMarkdown(): Promise<void> {
+  try {
+    const pikchrWasm = require('pikchr-wasm-kindone');
+    wasmRenderer = pikchrWasm.default || pikchrWasm;
+    await wasmRenderer.loadWASM();
+  } catch (error) {
+    console.warn('Failed to initialize WASM for markdown:', error);
+    // Fall back to command-line renderer
+  }
 }
 
 function escapeHtml(text: string): string {

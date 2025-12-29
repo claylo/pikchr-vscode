@@ -2,7 +2,7 @@
   "name": "pikchr",
   "displayName": "Pikchr",
   "description": "Preview Pikchr diagrams inside VS Code.",
-  "version": "0.0.1",
+  "version": "0.2.1",
   "private": true,
   "publisher": "claylo",
   "repository": "https://github.com/claylo/pikchr-vscode",
@@ -28,35 +28,84 @@
         "extensions": [
           ".pikchr"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./node_modules/pikchr-tmlanguage/language-configuration.json"
       }
     ],
     "grammars": [
       {
         "language": "pikchr",
         "scopeName": "source.pikchr",
-        "path": "./syntaxes/pikchr.tmLanguage.json"
+        "path": "./node_modules/pikchr-tmlanguage/pikchr.tmLanguage.json"
       }
     ],
-    "customEditors": [
+    "commands": [
       {
-        "viewType": "pikchr.preview",
-        "displayName": "Pikchr Preview",
-        "selector": [
-          {
-            "filenamePattern": "*.pikchr"
-          }
-        ],
-        "priority": "default"
+        "command": "pikchr.openPreview",
+        "title": "Open Pikchr Preview",
+        "category": "Pikchr",
+        "icon": "$(open-preview)"
       }
     ],
-    "markdown.markdownItPlugins": true
+    "menus": {
+      "editor/title": [
+        {
+          "command": "pikchr.openPreview",
+          "when": "resourceLangId == pikchr",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "pikchr.openPreview",
+          "when": "resourceLangId == pikchr"
+        }
+      ]
+    },
+    "markdown.markdownItPlugins": true,
+    "configuration": {
+      "title": "Pikchr",
+      "properties": {
+        "pikchr.renderer": {
+          "type": "string",
+          "enum": [
+            "wasm",
+            "pikchr-cmd",
+            "pikchr"
+          ],
+          "default": "wasm",
+          "description": "Rendering engine to use for Pikchr diagrams",
+          "enumDescriptions": [
+            "Use bundled WebAssembly renderer (recommended, no dependencies)",
+            "Use pikchr-cmd command-line tool (requires installation)",
+            "Use pikchr command-line tool (requires installation)"
+          ]
+        },
+        "pikchr.commandPath": {
+          "type": "string",
+          "default": "",
+          "description": "Custom path to pikchr-cmd or pikchr executable (leave empty to use PATH)",
+          "scope": "machine-overridable"
+        },
+        "pikchr.preview.autoOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open preview panel when opening .pikchr files"
+        },
+        "pikchr.preview.splitView": {
+          "type": "boolean",
+          "default": true,
+          "description": "Open preview in split view alongside source"
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "vscode:prepublish": "pnpm run compile",
-    "pretest": "pnpm run compile",
+    "bundle": "node esbuild.js",
+    "bundle:production": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "vscode:prepublish": "pnpm run bundle:production",
+    "pretest": "pnpm run bundle",
     "test": "vscode-test"
   },
   "devDependencies": {
@@ -66,8 +115,13 @@
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.27.2",
     "mocha": "^11.7.5",
     "typescript": "^5.7.2"
   },
-  "packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6"
+  "packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6",
+  "dependencies": {
+    "pikchr-tmlanguage": "^0.1.0",
+    "pikchr-wasm-kindone": "^2.0.2"
+  }
 }
