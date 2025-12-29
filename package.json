@@ -9,13 +9,29 @@
     "vscode": "^1.90.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages",
+    "Visualization"
   ],
   "activationEvents": [
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "pikchr",
+        "aliases": ["Pikchr", "pikchr"],
+        "extensions": [".pikchr"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "pikchr",
+        "scopeName": "source.pikchr",
+        "path": "./syntaxes/pikchr.tmLanguage.json"
+      }
+    ],
     "customEditors": [
       {
         "viewType": "pikchr.preview",
