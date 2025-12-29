@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { registerPikchrIntegrations } from './integrations';
 
-export function activate(_context: vscode.ExtensionContext): void {
-  registerPikchrIntegrations(_context);
+export function activate(context: vscode.ExtensionContext): any {
+  return registerPikchrIntegrations(context);
 }
 
 export function deactivate(): void {
