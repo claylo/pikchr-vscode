@@ -1,6 +1,6 @@
-# pikchr-preview
+# pikchr-vscode
 
-pikchr-preview is a VS Code extension that allows users to preview Pikchr
+pikchr-vscode is a VS Code extension that allows users to preview Pikchr
 diagrams directly within the editor. It leverages the
 [pikchr-cmd](https://github.com/zenomt/pikchr-cmd) tool to render Pikchr
 diagrams as images in real-time as users edit their Pikchr code. The extension
@@ -24,4 +24,5 @@ real-time preview in the editor.
 
 1. Open a `.pikchr` file or a Markdown file containing Pikchr diagrams.
 2. The extension will automatically render the Pikchr diagrams in a preview pane.
-3. As you edit the Pikchr code, the preview will update in real-time to reflect your changes.
+3. As you edit the Pikchr code, the preview will update in real-time to reflect
+your changes.

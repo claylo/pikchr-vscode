@@ -30,3 +30,13 @@ files, as specified by VS Code's Markdown preview API.
 * follow the project's coding style and linting rules.
 * write tests for any new features or bug fixes.
 * ensure that all code changes are properly documented.
+
+## Authoring
+
+* Write source code in TypeScript.
+* Follow best practices for TypeScript development, including type safety and proper use of interfaces and types.
+* Ensure that all new code is properly typed and leverages TypeScript's features to improve code quality and maintainability.
+* Use modern TypeScript features where appropriate, such as async/await, generics, and type inference, to write clean and efficient code.
+* Write clear and concise comments and documentation for all new code to aid in maintainability and knowledge sharing.
+* Follow the project's coding style and linting rules to ensure consistency across the codebase.
+* Ensure that all new code is covered by appropriate tests to maintain code quality and prevent regressions.
