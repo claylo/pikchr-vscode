@@ -21,6 +21,6 @@
 
 ## Phase 3: Syntax Highlighting
 
-- [ ] Add TextMate grammar and language configuration for Pikchr.
-- [ ] Register the language and associate `.pikchr` files with it.
-- [ ] Use `../reference/pikchr/doc/grammar.md` as a reference for the grammar implementation.
+- [x] Add TextMate grammar and language configuration for Pikchr.
+- [x] Register the language and associate `.pikchr` files with it.
+- [x] Create comprehensive grammar covering objects, keywords, attributes, colors, and more.

@@ -1,0 +1,44 @@
+# Sample Pikchr diagram demonstrating syntax highlighting
+# This is a simple flowchart example
+
+/* Block comment
+   showing multi-line comments */
+
+# Define a custom box style
+define $boxht = 0.5
+define $boxwid = 1.0
+
+# Start of the diagram
+box "Start" fill lightblue radius 0.1
+arrow right 0.5
+box "Process" fill lightyellow
+
+# Decision diamond
+arrow down 0.5 from last box.s
+circle "Decision?" radius 0.3 fill lightgreen
+
+# Branching paths
+arrow right 0.5 "Yes" above
+box "Action A" fill pink
+arrow down 0.5
+circle "End" fill gray radius 0.2
+
+# Alternative path
+arrow down 0.5 from 3rd last circle.s "No" left
+box "Action B" fill orange dashed
+arrow right until even with last circle then to last circle.w ->
+
+# Add some text annotations
+text "Diagram v1.0" at 1st box.n + (0, 0.3) color blue
+
+# Draw connecting lines
+line from 1st box.e to 2nd box.w thickness 2
+arc cw from 2nd box.s to 3rd circle.n
+
+# Reference compass points
+dot at 1st box.ne
+dot at 2nd box.sw color red
+
+# Use variables and expressions
+$width = 1.5
+box width $width height $width/2 "Variable Size" at (2, -2)
