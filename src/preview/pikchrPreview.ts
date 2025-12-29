@@ -1,46 +1,117 @@
 import * as vscode from 'vscode';
 import type { PikchrRenderer } from '../pikchr/renderer';
 
-class PikchrEditorProvider implements vscode.CustomTextEditorProvider {
-  constructor(private readonly renderer: PikchrRenderer) {}
+const previewPanels = new Map<string, vscode.WebviewPanel>();
 
-  async resolveCustomTextEditor(
-    document: vscode.TextDocument,
-    webviewPanel: vscode.WebviewPanel,
-    _token: vscode.CancellationToken
-  ): Promise<void> {
-    webviewPanel.webview.options = {
-      enableScripts: false
-    };
+export function registerPikchrPreview(
+  context: vscode.ExtensionContext,
+  renderer: PikchrRenderer
+): void {
+  // Register command to open preview
+  const openPreviewCommand = vscode.commands.registerCommand('pikchr.openPreview', async (uri?: vscode.Uri) => {
+    const targetUri = uri || vscode.window.activeTextEditor?.document.uri;
+    if (!targetUri) {
+      return;
+    }
 
-    const updateWebview = async () => {
-      try {
-        const source = document.getText();
-        const svgData = await this.renderer.render(source);
-        const svgContent = Buffer.from(svgData).toString('utf-8');
+    await openPreview(targetUri, renderer, context);
+  });
 
-        webviewPanel.webview.html = this.getHtmlForWebview(svgContent);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        webviewPanel.webview.html = this.getErrorHtml(errorMessage);
+  // Auto-open preview when opening .pikchr files
+  const openTextDocumentHandler = vscode.workspace.onDidOpenTextDocument(async document => {
+    if (document.languageId === 'pikchr') {
+      const config = vscode.workspace.getConfiguration('pikchr.preview');
+      const autoOpen = config.get<boolean>('autoOpen', true);
+
+      if (autoOpen) {
+        await openPreview(document.uri, renderer, context);
       }
-    };
+    }
+  });
 
-    const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
-      if (e.document.uri.toString() === document.uri.toString()) {
-        updateWebview();
-      }
-    });
+  context.subscriptions.push(openPreviewCommand, openTextDocumentHandler);
+}
 
-    webviewPanel.onDidDispose(() => {
-      changeDocumentSubscription.dispose();
-    });
+async function openPreview(
+  uri: vscode.Uri,
+  renderer: PikchrRenderer,
+  context: vscode.ExtensionContext
+): Promise<void> {
+  const uriString = uri.toString();
 
-    await updateWebview();
+  // Reuse existing panel if available
+  if (previewPanels.has(uriString)) {
+    const panel = previewPanels.get(uriString)!;
+    panel.reveal();
+    return;
   }
 
-  private getHtmlForWebview(svgContent: string): string {
-    return `<!DOCTYPE html>
+  const config = vscode.workspace.getConfiguration('pikchr.preview');
+  const splitView = config.get<boolean>('splitView', true);
+
+  // Create webview panel
+  const panel = vscode.window.createWebviewPanel(
+    'pikchrPreview',
+    `Preview: ${getFileName(uri)}`,
+    {
+      viewColumn: splitView ? vscode.ViewColumn.Beside : vscode.ViewColumn.Active,
+      preserveFocus: splitView
+    },
+    {
+      enableScripts: false,
+      retainContextWhenHidden: true
+    }
+  );
+
+  previewPanels.set(uriString, panel);
+
+  // Update preview content
+  const updatePreview = async () => {
+    try {
+      const document = await vscode.workspace.openTextDocument(uri);
+      const source = document.getText();
+      const svgData = await renderer.render(source);
+      const svgContent = Buffer.from(svgData).toString('utf-8');
+
+      panel.webview.html = getHtmlForWebview(svgContent);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      panel.webview.html = getErrorHtml(errorMessage);
+    }
+  };
+
+  // Listen for document changes
+  const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
+    if (e.document.uri.toString() === uriString) {
+      updatePreview();
+    }
+  });
+
+  // Listen for document saves
+  const saveDocumentSubscription = vscode.workspace.onDidSaveTextDocument(document => {
+    if (document.uri.toString() === uriString) {
+      updatePreview();
+    }
+  });
+
+  // Cleanup on dispose
+  panel.onDidDispose(() => {
+    previewPanels.delete(uriString);
+    changeDocumentSubscription.dispose();
+    saveDocumentSubscription.dispose();
+  });
+
+  // Initial render
+  await updatePreview();
+}
+
+function getFileName(uri: vscode.Uri): string {
+  const path = uri.path.split('/');
+  return path[path.length - 1];
+}
+
+function getHtmlForWebview(svgContent: string): string {
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -54,8 +125,8 @@ class PikchrEditorProvider implements vscode.CustomTextEditorProvider {
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background-color: var(--vscode-editor-background);
-      color: var(--vscode-editor-foreground);
+      background-color: white;
+      color: black;
     }
     svg {
       max-width: 100%;
@@ -67,10 +138,10 @@ class PikchrEditorProvider implements vscode.CustomTextEditorProvider {
   ${svgContent}
 </body>
 </html>`;
-  }
+}
 
-  private getErrorHtml(errorMessage: string): string {
-    return `<!DOCTYPE html>
+function getErrorHtml(errorMessage: string): string {
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -100,36 +171,17 @@ class PikchrEditorProvider implements vscode.CustomTextEditorProvider {
 <body>
   <div class="error">
     <strong>Error rendering Pikchr diagram:</strong>
-    <pre>${this.escapeHtml(errorMessage)}</pre>
+    <pre>${escapeHtml(errorMessage)}</pre>
   </div>
 </body>
 </html>`;
-  }
-
-  private escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
 }
 
-export function registerPikchrPreview(
-  context: vscode.ExtensionContext,
-  renderer: PikchrRenderer
-): void {
-  const provider = new PikchrEditorProvider(renderer);
-  const registration = vscode.window.registerCustomEditorProvider(
-    'pikchr.preview',
-    provider,
-    {
-      webviewOptions: {
-        retainContextWhenHidden: true
-      }
-    }
-  );
-
-  context.subscriptions.push(registration);
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }

@@ -1,0 +1,35 @@
+# VS Code Extension Icon
+# Recreates the default vsce icon with adjustment arrows
+
+# Set some sizing
+boxwid = 0.6
+boxht = 0.6
+
+# Define the center point where all boxes meet
+dot invisible at (0,0); CENTER: last dot
+
+# Lower left box - northeast corner at center
+LL: box fill lightblue color gray thickness 200% rad 0.05 with .ne at CENTER
+
+# Lower right box - northwest corner at center
+LR: box fill lightgreen color gray thickness 200% rad 0.05 with .nw at CENTER
+
+# Upper left box - southeast corner at center
+UL: box fill lightyellow color gray thickness 200% rad 0.05 with .se at CENTER
+
+# Upper right box - tilted diamond, southwest point at center
+# Make it larger (0.85) to visually match the other boxes
+UR: diamond fill none color gray thickness 200% wid 0.75 ht 0.75 with .sw at CENTER
+# Curved arrow from lower left box's west point to tilted box's west point
+# This arrow suggests horizontal adjustment
+arc from LL.w to UR.w \
+  thickness 100% -> \
+  color red \
+  radius 1.2in cw
+
+# Curved arrow from lower left box's south point to tilted box's south point
+# This arrow suggests vertical adjustment
+arc from LL.s to UR.s \
+  thickness 100% -> \
+  color red \
+  radius 1.2in ccw
