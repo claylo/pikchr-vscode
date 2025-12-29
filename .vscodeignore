@@ -1,0 +1,55 @@
+# Source files - we ship compiled dist/
+src/**
+*.ts
+!src/**/*.d.ts
+tsconfig.json
+
+# Tests
+.vscode-test/**
+.vscode-test.cjs
+out/test/**
+dist/test/**
+
+# Build and development files
+.github/**
+.vscode/**
+.claude/**
+node_modules/**
+pnpm-lock.yaml
+.npmrc
+
+# Documentation and planning
+PLAN.md
+commit.txt
+AGENTS.md
+CLAUDE.md
+examples/**
+
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Environment files
+.env
+.envrc
+
+# Editor configs
+.editorconfig
+.eslintrc*
+.prettierrc*
+
+# Misc development files
+*.log
+*.vsix
+.DS_Store
+**/*.map
+
+# Keep only what's needed for the extension to run:
+# ✓ dist/
+# ✓ syntaxes/
+# ✓ language-configuration.json
+# ✓ package.json
+# ✓ README.md
+# ✓ LICENSE (if present)
+# ✓ CHANGELOG.md (if present)
